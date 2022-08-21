@@ -3,9 +3,10 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exceptions.AlreadyExistException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.user.model.User;
+
 import java.util.Collection;
 
 @Slf4j
@@ -15,13 +16,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    public User get(long userId) throws NotFoundException {
+    public User get(long userId) {
         User user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("такого пользователя нет в списке"));
         return user;
     }
 
-    public User add(User user) throws AlreadyExistException {
+    public User add(User user) {
         if (user.getName() == null) {
             log.info("Имя пользователя отсутствует");
             throw new ValidationException("Нет имени пользователя");

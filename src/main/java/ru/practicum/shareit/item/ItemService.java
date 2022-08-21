@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
@@ -11,9 +10,9 @@ public interface ItemService {
 
     List<ItemDto> getItems(long userId);
 
-    ItemDto add(long userId, ItemDto itemDto) throws NotFoundException;
+    ItemDto add(long userId, ItemDto itemDto);
 
-    ItemDto update(long userId, long itemId, ItemDto itemDto) throws NotFoundException;
+    ItemDto update(long userId, long itemId, ItemDto itemDto);
 
     List<ItemDto> search(long userId, String searchItem);
 

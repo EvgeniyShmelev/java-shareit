@@ -1,11 +1,12 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exceptions.AlreadyExistException;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.user.dto.UserCreate;
+import ru.practicum.shareit.user.model.User;
 
-import javax.validation.Valid;
 import java.util.Collection;
 
 @RestController
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) throws AlreadyExistException {
+    public User create(@Validated(UserCreate.class) @RequestBody User user) {
         return userService.add(user);
     }
 

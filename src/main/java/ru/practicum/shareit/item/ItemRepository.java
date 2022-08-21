@@ -17,7 +17,7 @@ public interface ItemRepository {
 
     void deleteByUserIdAndItemId(long userId, long itemId);
 
-    ItemDto updateItem(long userId, long itemId, ItemDto itemDto) throws NotFoundException;
+    ItemDto updateItem(long userId, long itemId, ItemDto itemDto);
 
     List<ItemDto> searchItem(String search);
 }

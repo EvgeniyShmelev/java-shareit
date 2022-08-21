@@ -4,37 +4,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class ItemStorage implements ItemRepository {
-    private final HashMap<Long, List<Item>> items = new HashMap<>();
+    private static final Map<Long, Item> items = new HashMap<>();
+    private final Map<Long, List<Item>> userItemIndex = new LinkedHashMap<>();
     private long id;
 
     @Override
     public List<ItemDto> findByUserId(long userId) {
-        return items.get(userId).stream()
+        return userItemIndex.get(userId).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Item> getListItems() {
-        return items.values().stream()
+        return userItemIndex.values().stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
 
     @Override
     public ItemDto getItemById(long itemId) {
-        return items.values().stream()
+        return userItemIndex.values().stream()
                 .flatMap(Collection::stream)
                 .filter(item -> item.getId() == itemId)
                 .findFirst()
@@ -47,35 +46,35 @@ public class ItemStorage implements ItemRepository {
     public ItemDto save(long userId, ItemDto itemDto) {
         Item item = ItemMapper.toItem(userId, itemDto);
         List<Item> itemList = new ArrayList<>();
-        if(items.containsKey(userId)) {
-            itemList = items.get(userId);
+        if(userItemIndex.containsKey(userId)) {
+            itemList = userItemIndex.get(userId);
         }
         item.setId(++id);
         item.setOwner(userId);
         itemList.add(item);
-        items.put(userId, itemList);
+        userItemIndex.put(userId, itemList);
         return ItemMapper.toItemDto(item);
     }
 
     @Override
     public void deleteByUserIdAndItemId(long userId, long itemId) {
-        for (Item item : items.get(userId)) {
+        for (Item item : userItemIndex.get(userId)) {
             if (item.getId() == itemId) {
-                items.remove(item);
+                userItemIndex.remove(item);
                 log.info("Вещь ID# {} удалена", itemId);
             }
         }
     }
 
     @Override
-    public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) throws NotFoundException {
-        if (!items.containsKey(userId)) {
+    public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
+        if (!userItemIndex.containsKey(userId)) {
             log.info("У пользователя нет вещей");
             throw new NotFoundException("У пользователя нет вещей");
         }
         Item item = ItemMapper.toItem(userId, itemDto);
         Item newItem = null;
-        for (Item i : items.get(userId)) {
+        for (Item i : userItemIndex.get(userId)) {
             if (i.getId() == itemId) {
                 if (item.getName() != null) {
                     i.setName(item.getName());

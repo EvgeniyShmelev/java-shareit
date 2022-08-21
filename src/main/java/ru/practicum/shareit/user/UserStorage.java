@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.AlreadyExistException;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,14 +21,12 @@ public class UserStorage implements UserRepository {
 
     private long id;
 
-    public User createUser(User user) throws AlreadyExistException {
-        for (User u : users.values()) {
-            if (u.getEmail().equals(user.getEmail())) {
-                log.info("Пользователь уже существует");
-                throw new AlreadyExistException("Такой пользователь уже существует");
-            }
-        }
-        user.setId(++id);
+    public User createUser(User user) {
+        if (checkEmail(user)) {
+            log.info("Пользователь уже существует");
+            throw new AlreadyExistException("Такой пользователь уже существует");
+        } else
+            user.setId(++id);
         users.put(user.getId(), user);
         log.info("Пользователь создан успешно");
         return user;
@@ -45,13 +46,10 @@ public class UserStorage implements UserRepository {
         User newUser = users.get(userId);
         if (user.getName() != null) {
             newUser.setName(user.getName());
-        } else {
-            for (User user1 : users.values()) {
-                if (user1.getEmail().equals(user.getEmail())) {
-                    log.info("Email уже существует");
-                    throw new IllegalArgumentException("Email уже существует");
-                }
-            }
+        }
+        if (checkEmail(user)) {
+            log.info("Email уже существует");
+            throw new AlreadyExistException("Email уже существует");
         }
         if (user.getEmail() != null) {
             newUser.setEmail(user.getEmail());
@@ -73,5 +71,14 @@ public class UserStorage implements UserRepository {
 
     public UserDto getUser(long userId) {
         return UserMapper.toUserDto(users.get(userId));
+    }
+
+    public boolean checkEmail(User user) {
+        for (User u : users.values()) {
+            if (u.getEmail().equals(user.getEmail())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

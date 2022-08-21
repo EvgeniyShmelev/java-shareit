@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.model;
 
-import com.sun.istack.internal.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.practicum.shareit.request.ItemRequest;
@@ -11,7 +10,6 @@ import ru.practicum.shareit.request.ItemRequest;
 @Data
 @AllArgsConstructor
 public class Item {
-    @NotNull
     private long id;            //уникальный идентификатор вещи;
     private String name;        //краткое название;
     private String description; //развёрнутое описание;
@@ -20,4 +18,6 @@ public class Item {
     private ItemRequest request; /*если вещь была создана по запросу другого пользователя,
      то в этом поле будет храниться
     ссылка на соответствующий запрос.*/
+    public Item() {
+    }
 }

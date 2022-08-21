@@ -37,7 +37,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto add(long userId, ItemDto itemDto) throws NotFoundException {
+    public ItemDto add(long userId, ItemDto itemDto) {
         if (userId <= 0 || userService.get(userId) == null) {
             throw new ValidationException("ID меньше или равно 0");
         }
@@ -57,7 +57,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(long userId, long itemId, ItemDto itemDto) throws NotFoundException {
+    public ItemDto update(long userId, long itemId, ItemDto itemDto) {
         if (userId <= 0) {
             log.info("ID пользователя равно 0");
             throw new ValidationException("ID пользователя меньше или равно 0");

@@ -2,11 +2,11 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemCreate;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -18,14 +18,14 @@ public class ItemController {
 
     @PostMapping
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") long userId,
-                       @Valid @RequestBody ItemDto itemDto) throws NotFoundException {
+                       @Validated(ItemCreate.class) @RequestBody ItemDto itemDto) {
         log.debug("Добавлена вещь: {}", itemDto);
         return itemService.add(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId,
-                          @RequestBody ItemDto itemDto) throws NotFoundException {
+                          @RequestBody ItemDto itemDto) {
         log.debug("Обновлена вещь: {}", itemDto);
         return itemService.update(userId, itemId, itemDto);
     }
