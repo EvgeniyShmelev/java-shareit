@@ -1,15 +1,15 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
 public interface ItemRepository {
     List<ItemDto> findByUserId(long userId);
 
-    ItemDto save(long userId, ItemDto itemDto);
+    Item save(Item Item);
 
     List<Item> getListItems();
 
@@ -17,7 +17,7 @@ public interface ItemRepository {
 
     void deleteByUserIdAndItemId(long userId, long itemId);
 
-    ItemDto updateItem(long userId, long itemId, ItemDto itemDto);
+    ItemDto updateItem(User user, long itemId, ItemDto itemDto);
 
     List<ItemDto> searchItem(String search);
 }

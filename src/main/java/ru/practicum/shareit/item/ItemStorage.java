@@ -6,6 +6,7 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class ItemStorage implements ItemRepository {
-    private static final Map<Long, Item> items = new HashMap<>();
+    private final Map<Long, Item> items = new HashMap<>();
     private final Map<Long, List<Item>> userItemIndex = new LinkedHashMap<>();
     private long id;
 
@@ -43,38 +44,32 @@ public class ItemStorage implements ItemRepository {
     }
 
     @Override
-    public ItemDto save(long userId, ItemDto itemDto) {
-        Item item = ItemMapper.toItem(userId, itemDto, null);
-        List<Item> itemList = new ArrayList<>();
-        if(userItemIndex.containsKey(userId)) {
-            itemList = userItemIndex.get(userId);
-        }
-        item.setId(++id);
-        item.setOwner(userId);
-        itemList.add(item);
-        userItemIndex.put(userId, itemList);
-        return ItemMapper.toItemDto(item);
+    public Item save(Item item) {
+        userItemIndex.computeIfAbsent(item.getOwner().getId(), k -> new ArrayList<>());
+        userItemIndex.get(item.getOwner().getId()).add(item);
+        items.put(item.getId(), item);
+        return item;
     }
 
     @Override
     public void deleteByUserIdAndItemId(long userId, long itemId) {
         for (Item item : userItemIndex.get(userId)) {
             if (item.getId() == itemId) {
-                userItemIndex.remove(item);
+                items.remove(item);
                 log.info("Вещь ID# {} удалена", itemId);
             }
         }
     }
 
     @Override
-    public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
-        if (!userItemIndex.containsKey(userId)) {
+    public ItemDto updateItem(User user, long itemId, ItemDto itemDto) {
+        if (!userItemIndex.containsKey(user.getId())) {
             log.info("У пользователя нет вещей");
             throw new NotFoundException("У пользователя нет вещей");
         }
-        Item item = ItemMapper.toItem(userId, itemDto, null);
+        Item item = ItemMapper.toItem(user, itemDto, null);
         Item newItem = null;
-        for (Item i : userItemIndex.get(userId)) {
+        for (Item i : userItemIndex.get(user.getId())) {
             if (i.getId() == itemId) {
                 if (item.getName() != null) {
                     i.setName(item.getName());

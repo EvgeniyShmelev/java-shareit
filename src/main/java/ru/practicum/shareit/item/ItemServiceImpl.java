@@ -3,13 +3,18 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.utill.NumberGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -17,6 +22,8 @@ import java.util.List;
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final NumberGenerator numberGenerator;
 
 
     public ItemDto getItemById(long userId, long itemId) {
@@ -53,7 +60,11 @@ public class ItemServiceImpl implements ItemService {
             log.info("Нет статуса доступности вещи");
             throw new ValidationException("Отсутствует статус доступности вещи");
         }
-        return itemRepository.save(userId, itemDto);
+        Optional<User> owner = userRepository.findUserById(userId);
+        Item item = ItemMapper.toItem(owner.get(), itemDto, null);
+        item.setId(numberGenerator.getItemId());
+        itemRepository.save(item);
+        return ItemMapper.toItemDto(item);
     }
 
     @Override
@@ -66,7 +77,8 @@ public class ItemServiceImpl implements ItemService {
             log.info("Пользователь {} не существует", userId);
             throw new ValidationException("Пользователь " + userId + " не существует");
         }
-        return itemRepository.updateItem(userId, itemId, itemDto);
+        Optional<User> owner = userRepository.findUserById(userId);
+        return itemRepository.updateItem(owner.get(), itemId, itemDto);
     }
 
     @Override
