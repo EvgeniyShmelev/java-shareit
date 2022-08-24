@@ -3,11 +3,16 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.AlreadyExistException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.utill.NumberGenerator;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -15,36 +20,39 @@ import java.util.Collection;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final NumberGenerator numberGenerator;
 
-    public User get(long userId) {
+    public UserDto get(long userId) {
         User user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("такого пользователя нет в списке"));
-        return user;
+        return UserMapper.toUserDto(user);
     }
 
-    public User add(User user) {
-        if (user.getName() == null) {
-            log.info("Имя пользователя отсутствует");
-            throw new ValidationException("Нет имени пользователя");
+    @Override
+    public UserDto add(UserDto userDto) {
+        if (checkEmail(userDto)){
+            User user = UserMapper.toUser(userDto);
+            user.setId(numberGenerator.getUserId());
+            return UserMapper.toUserDto(userRepository.createUser(user));
         }
-        if (user.getEmail() == null) {
-            log.info("У пользователя отсутствует email");
-            throw new ValidationException("Нет адреса почты пользователя");
-        }
-        userRepository.createUser(user);
-        return user;
+        log.info("Класс сервис");
+        throw new AlreadyExistException("Такой пользователь уже существует");
     }
 
-    public User update(long userId, User user) {
+    @Override
+    public UserDto update(long userId, UserDto userDto) {
         if (userId <= 0) {
             log.info("ID пользователя равен 0");
-            throw new NullPointerException("ID пользователя равен 0");
+            throw new ValidationException("ID пользователя равен 0");
         }
-        return userRepository.updateUser(userId, user);
+        User user = UserMapper.toUser(userDto);
+        return UserMapper.toUserDto(userRepository.updateUser(userId, user));
     }
 
-    public Collection<User> getUsers() {
-        return userRepository.getUsers();
+    public Collection<UserDto> getUsers() {
+        return userRepository.getUsers().stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     public void remove(long userId) {
@@ -53,5 +61,9 @@ public class UserServiceImpl implements UserService {
             throw new NullPointerException("ID пользователя меньше или равно 0");
         }
         userRepository.removeUser(userId);
+    }
+
+    private boolean checkEmail(UserDto user) {
+        return userRepository.checkEmail(user.getEmail());
     }
 }

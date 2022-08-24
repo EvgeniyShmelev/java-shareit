@@ -3,32 +3,25 @@ package ru.practicum.shareit.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.AlreadyExistException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component
+@Repository
 public class UserStorage implements UserRepository {
 
-    private final HashMap<Long, User> users = new HashMap<>();
-
-    private long id;
+    private final Map<Long, User> users = new HashMap<>();
+    private final Set<String> emailUniqSet = new HashSet<>();
 
     public User createUser(User user) {
-        if (checkEmail(user)) {
-            log.info("Пользователь уже существует");
-            throw new AlreadyExistException("Такой пользователь уже существует");
-        } else
-            user.setId(++id);
         users.put(user.getId(), user);
-        log.info("Пользователь создан успешно");
+        emailUniqSet.add(user.getEmail());
         return user;
     }
 
@@ -43,11 +36,12 @@ public class UserStorage implements UserRepository {
 
     @Override
     public User updateUser(long userId, User user) {
+        emailUniqSet.remove(getUser(userId).getEmail());
         User newUser = users.get(userId);
         if (user.getName() != null) {
             newUser.setName(user.getName());
         }
-        if (checkEmail(user)) {
+        if (!checkEmail(user.getEmail())) {
             log.info("Email уже существует");
             throw new AlreadyExistException("Email уже существует");
         }
@@ -61,6 +55,7 @@ public class UserStorage implements UserRepository {
 
     @Override
     public void removeUser(long userId) {
+        emailUniqSet.remove(getUser(userId).getEmail());
         users.remove(userId);
     }
 
@@ -73,12 +68,8 @@ public class UserStorage implements UserRepository {
         return UserMapper.toUserDto(users.get(userId));
     }
 
-    public boolean checkEmail(User user) {
-        for (User u : users.values()) {
-            if (u.getEmail().equals(user.getEmail())) {
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public boolean checkEmail(String userEmail) {
+        return !emailUniqSet.contains(userEmail);
     }
 }

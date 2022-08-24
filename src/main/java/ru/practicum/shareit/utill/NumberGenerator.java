@@ -1,24 +1,30 @@
 package ru.practicum.shareit.utill;
 
-public class NumberGenerator {
-    private static long userId = 1;
-    private static long itemId = 1;
-    private static long itemRequestId = 1;
-    private static long bookingId = 1;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
-    public static long getUserId() {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Component
+public class NumberGenerator {
+    private long userId = 1;
+    private long itemId = 1;
+    private long itemRequestId = 1;
+    private long bookingId = 1;
+
+    public long getUserId() {
         return userId++;
     }
 
-    public static long getItemId() {
+    public long getItemId() {
         return itemId++;
     }
 
-    public static long getItemRequestId() {
+    public long getItemRequestId() {
         return itemRequestId++;
     }
 
-    public static long getBookingId() {
+    public long getBookingId() {
         return bookingId++;
     }
 }

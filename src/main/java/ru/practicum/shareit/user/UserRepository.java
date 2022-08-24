@@ -17,4 +17,6 @@ public interface UserRepository {
 
     List<User> getUsers();
 
+    boolean checkEmail(String userEmail);
+
 }

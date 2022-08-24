@@ -44,7 +44,7 @@ public class ItemStorage implements ItemRepository {
 
     @Override
     public ItemDto save(long userId, ItemDto itemDto) {
-        Item item = ItemMapper.toItem(userId, itemDto);
+        Item item = ItemMapper.toItem(userId, itemDto, null);
         List<Item> itemList = new ArrayList<>();
         if(userItemIndex.containsKey(userId)) {
             itemList = userItemIndex.get(userId);
@@ -72,7 +72,7 @@ public class ItemStorage implements ItemRepository {
             log.info("У пользователя нет вещей");
             throw new NotFoundException("У пользователя нет вещей");
         }
-        Item item = ItemMapper.toItem(userId, itemDto);
+        Item item = ItemMapper.toItem(userId, itemDto, null);
         Item newItem = null;
         for (Item i : userItemIndex.get(userId)) {
             if (i.getId() == itemId) {

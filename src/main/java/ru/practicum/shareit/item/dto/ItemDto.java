@@ -17,4 +17,6 @@ public class ItemDto {
     private String description;
     @NotNull(groups = ItemCreate.class)
     private Boolean available;
+    private Long requestId; //в этом поле будет храниться ссылка на соответствующий запрос
+
 }
