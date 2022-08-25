@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     public UserDto add(UserDto userDto) {
         if (checkEmail(userDto)){
             User user = UserMapper.toUser(userDto);
-            user.setId(numberGenerator.getUserId());
+            user.setId(numberGenerator.getId());
             return UserMapper.toUserDto(userRepository.createUser(user));
         }
         log.info("Класс сервис");

@@ -62,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
         }
         Optional<User> owner = userRepository.findUserById(userId);
         Item item = ItemMapper.toItem(owner.get(), itemDto, null);
-        item.setId(numberGenerator.getItemId());
+        item.setId(numberGenerator.getId());
         itemRepository.save(item);
         return ItemMapper.toItemDto(item);
     }
