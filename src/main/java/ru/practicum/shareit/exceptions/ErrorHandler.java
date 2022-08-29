@@ -13,7 +13,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotException(final NotFoundException e) {
-        log.error(e.getMessage());
+        log.info(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -22,7 +22,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
-        log.error(e.getMessage());
+        log.info(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -31,15 +31,15 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleFalseInputIdException(final NotOwnerException e) {
-        log.error(e.getMessage());
+        log.info(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflictException(final AlreadyExistException e) {
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleConflictException(final Throwable e) {
         log.error(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()

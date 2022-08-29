@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -11,28 +11,28 @@ import ru.practicum.shareit.user.model.User;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
+//@Component
 @Slf4j
-public class ItemStorage implements ItemRepository {
+public class ItemStorage /*implements ItemRepository*/ {
     private final Map<Long, Item> items = new HashMap<>();
     private final Map<Long, List<Item>> userItemIndex = new LinkedHashMap<>();
     private long id;
 
-    @Override
+    //@Override
     public List<ItemDto> findByUserId(long userId) {
         return userItemIndex.get(userId).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
-    @Override
+    //@Override
     public List<Item> getListItems() {
         return userItemIndex.values().stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
 
-    @Override
+    //@Override
     public ItemDto getItemById(long itemId) {
         return userItemIndex.values().stream()
                 .flatMap(Collection::stream)
@@ -43,7 +43,7 @@ public class ItemStorage implements ItemRepository {
                 .findAny().orElse(null);
     }
 
-    @Override
+    //@Override
     public Item save(Item item) {
         userItemIndex.computeIfAbsent(item.getOwner().getId(), k -> new ArrayList<>());
         userItemIndex.get(item.getOwner().getId()).add(item);
@@ -51,7 +51,7 @@ public class ItemStorage implements ItemRepository {
         return item;
     }
 
-    @Override
+    //@Override
     public void deleteByUserIdAndItemId(long userId, long itemId) {
         for (Item item : userItemIndex.get(userId)) {
             if (item.getId() == itemId) {
@@ -61,7 +61,7 @@ public class ItemStorage implements ItemRepository {
         }
     }
 
-    @Override
+    //@Override
     public ItemDto updateItem(User user, long itemId, ItemDto itemDto) {
         if (!userItemIndex.containsKey(user.getId())) {
             log.info("У пользователя нет вещей");
