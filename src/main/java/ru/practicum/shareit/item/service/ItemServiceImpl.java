@@ -31,7 +31,6 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final NumberGenerator numberGenerator;
 
-
     public Optional<Item> getItemById(long userId, long itemId) {
         if (userId <= 0 & itemId <= 0) {
             log.info("ID равно 0");
@@ -40,7 +39,6 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findById(itemId);
     }
 
-    @Override
     public List<ItemDto> getItems(long userId) {
         List<ItemDto> allItems = new ArrayList<>();
         ItemDto itemDto;
@@ -59,7 +57,7 @@ public class ItemServiceImpl implements ItemService {
         return allItems;
     }
 
-    @Override
+    @Transactional
     public ItemDto add(long userId, ItemDto itemDto) {
         if (userId <= 0 || userService.get(userId) == null) {
             throw new ValidationException("ID меньше или равно 0");
@@ -83,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(item);
     }
 
-    @Override
+    @Transactional
     public ItemDto update(long userId, long itemId, ItemDto itemDto) {
         if (userId <= 0) {
             log.info("ID пользователя равно 0");
@@ -99,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(item);
     }
 
-    @Override
+    @Transactional
     public void delete(long userId, long itemId) {
         if (userId <= 0) {
             log.info("ID пользователя меньше или равно 0");
@@ -112,7 +110,6 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.deleteById(itemId);
     }
 
-    @Override
     public List<ItemDto> search(long userId, String search) {
         if (userId <= 0) {
             log.info("ID пользователя меньше 0");

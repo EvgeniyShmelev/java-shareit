@@ -1,25 +1,28 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.Objects;
 
 /**
  * Класс бронирования
  */
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Entity
 @Table(name = "bookings", schema = "public")
-@NoArgsConstructor
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;                //уникальный идентификатор бронирования;
+    private Long id;                //уникальный идентификатор бронирования;
 
     @Column(name = "start_date")
     private Date start;             //дата начала бронирования;
@@ -39,4 +42,18 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private BookingStatus status;   //статус бронирования.
     //Может принимать одно из следующих значений: WAITING, APPROVED, REJECTED, CANCELED
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
+            return false;
+        Booking booking = (Booking) o;
+        return id != null && Objects.equals(id, booking.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

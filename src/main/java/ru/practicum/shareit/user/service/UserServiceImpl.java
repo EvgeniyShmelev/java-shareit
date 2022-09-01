@@ -12,7 +12,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.utill.NumberGenerator;
 
-import javax.transaction.Transactional;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -20,17 +19,18 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final NumberGenerator numberGenerator;
 
-    public UserDto get(long userId) {
+    @Override
+    public UserDto get(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("такого пользователя нет в списке"));
         return UserMapper.toUserDto(user);
     }
+
 
     @Override
     public UserDto add(UserDto userDto) {
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto update(long userId, UserDto userDto) {
+    public UserDto update(Long userId, UserDto userDto) {
         if (userId <= 0) {
             log.info("ID пользователя равен 0");
             throw new ValidationException("ID пользователя равен 0");
@@ -53,13 +53,14 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(userRepository.saveAndFlush(user));
     }
 
+    @Override
     public Collection<UserDto> getUsers() {
         return userRepository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
-
-    public void remove(long userId) {
+    @Override
+    public void remove(Long userId) {
         if (userId <= 0) {
             log.info("ID пользователя равен 0");
             throw new ValidationException("ID пользователя меньше или равно 0");
