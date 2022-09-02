@@ -2,12 +2,15 @@ package ru.practicum.shareit.booking.repository;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
+@Component
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Collection<Booking> findAllByBookingId(long userId, Sort start);
@@ -29,4 +32,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Collection<Booking> findFutureBookingsByOwnerId(long userId, LocalDateTime now, Sort start);
 
     Collection<Booking> findCurrentBookingsByOwnerId(long userId, LocalDateTime now, Sort start);
+
+    List<Booking> findBookigsToCheckForAddingAComment(long itemId, long userId, BookingStatus approved, LocalDateTime now);
 }

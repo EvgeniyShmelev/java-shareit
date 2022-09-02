@@ -16,8 +16,9 @@ import java.util.Objects;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "bookings", schema = "public")
+@Table(name = "bookings")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,12 +30,10 @@ public class Booking {
     @Column(name = "end_date")
     private Date end;               //дата конца бронирования;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "item_id")
+    @Column(name = "item_id")
     private Item item;              //вещь, которую пользователь бронирует;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "booker_id")
+    @Column(name = "booker_id")
     private User booker;            //пользователь, который осуществляет бронирование;
 
     @Column(name = "status", nullable = false)

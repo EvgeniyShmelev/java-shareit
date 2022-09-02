@@ -6,7 +6,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Create;
 import ru.practicum.shareit.Update;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.comment.CommentDto;
+import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -23,7 +24,7 @@ public class ItemController {
     @PostMapping
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") long userId,
                        @Validated(Create.class) @RequestBody ItemDto itemDto) {
-        log.debug("Добавлена вещь: {}", itemDto);
+        log.info("Добавлена вещь: {}", itemDto);
         return itemService.add(userId, itemDto);
     }
 
@@ -31,32 +32,40 @@ public class ItemController {
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId,
                           @Validated(Update.class)
                           @RequestBody ItemDto itemDto) {
-        log.debug("Обновлена вещь: {}", itemDto);
+        log.info("Обновлена вещь: {}", itemDto);
         return itemService.update(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
-    public Optional<Item> getItemById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
-        log.debug("Получен запрос вещи по ID");
+    public Item getItemById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
+        log.info("Получен запрос вещи по ID");
         return itemService.getItemById(userId, itemId);
     }
 
     @GetMapping()
     public List<ItemDto> get(@RequestHeader("X-Sharer-User-Id") long userId) {
-        log.debug("Получен запрос cписка вещей");
+        log.info("Получен запрос cписка вещей");
         return itemService.getItems(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text) {
-        log.debug("Получен запрос вещей по наименованию");
+        log.info("Получен запрос вещей по наименованию");
         return itemService.search(userId, text);
     }
 
     @DeleteMapping("/{itemId}")
     public void deleteItem(@RequestHeader("X-Sharer-User-Id") long userId,
                            @PathVariable long itemId) {
-        log.debug("Получен запрос на удаление вещи");
+        log.info("Получен запрос на удаление вещи");
         itemService.delete(userId, itemId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@Validated(Create.class) @RequestBody CommentDto commentDto,
+                                 @PathVariable long itemId,
+                                 @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
+        log.info("Добавление комментария к вещи с id = `" + itemId + "`");
+        return itemService.addComment(itemId, userId, commentDto);
     }
 }

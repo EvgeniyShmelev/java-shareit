@@ -3,10 +3,18 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.comment.CommentDto;
+import ru.practicum.shareit.item.dto.comment.CommentMapper;
+import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.repository.comment.CommentRepository;
+import ru.practicum.shareit.item.repository.item.ItemRepository;
+import ru.practicum.shareit.item.dto.item.ItemDto;
+import ru.practicum.shareit.item.dto.item.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
@@ -14,6 +22,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utill.NumberGenerator;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,13 +39,12 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final NumberGenerator numberGenerator;
+    private final CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
 
-    public Optional<Item> getItemById(long userId, long itemId) {
-        if (userId <= 0 & itemId <= 0) {
-            log.info("ID равно 0");
-            throw new ValidationException("ID меньше или равно 0");
-        }
-        return itemRepository.findById(itemId);
+    public Item getItemById(long userId, long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("такой вещи нет в списке"));
     }
 
     public List<ItemDto> getItems(long userId) {
@@ -122,5 +130,27 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.search(search).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public CommentDto addComment(long itemId, long userId, CommentDto commentDto) {
+        if (userId == -1) throw new ValidationException("Не определен заголовок X-Sharer-User-Id");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        List<Booking> booking = bookingRepository.findBookigsToCheckForAddingAComment(
+                itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
+        if (booking.isEmpty()) throw new ValidationException("Ошибочный запрос");
+
+        Comment comment = CommentMapper.toComment(commentDto);
+        comment.setItem(item);
+        comment.setAuthor(user);
+        comment.setCreated(LocalDateTime.now());
+        commentRepository.save(comment);
+        commentDto = CommentMapper.toDto(comment);
+        commentDto.setAuthorName(userService.get(userId).getName());
+        return commentDto;
     }
 }
