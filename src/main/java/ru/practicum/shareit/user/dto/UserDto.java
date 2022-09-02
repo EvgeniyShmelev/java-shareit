@@ -18,5 +18,6 @@ public class UserDto {
     @Email(groups = Create.class)
     private String email;   //адрес электронной почты
     //(два пользователя не могут иметь одинаковый адрес электронной почты).
-
+    public UserDto() {
+    }
 }

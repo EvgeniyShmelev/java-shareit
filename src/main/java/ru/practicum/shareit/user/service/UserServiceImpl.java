@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private boolean checkEmail(UserDto user) {
-        userRepository.checkEmail(user.getEmail()).ifPresent((u) -> {
+        userRepository.findByEmail(user.getEmail()).ifPresent((u) -> {
                     try {
                         throw new SQLException("пользователь с таким ящиком уже существует " + u);
                     } catch (SQLException e) {

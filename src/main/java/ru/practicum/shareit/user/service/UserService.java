@@ -5,7 +5,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.Collection;
 
-@Service
 public interface UserService {
 
     UserDto get(Long userId);
