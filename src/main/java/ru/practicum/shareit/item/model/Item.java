@@ -5,7 +5,9 @@ import org.hibernate.Hibernate;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Класс вещи для аренды
@@ -39,6 +41,9 @@ public class Item {
     private Long request; /*если вещь была создана по запросу другого пользователя,
      то в этом поле будет храниться
     ссылка на соответствующий запрос.*/
+
+    @Transient
+    private Set<Comment> comment = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

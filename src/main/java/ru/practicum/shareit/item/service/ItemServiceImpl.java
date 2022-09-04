@@ -23,9 +23,7 @@ import ru.practicum.shareit.utill.NumberGenerator;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
@@ -135,22 +133,18 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long itemId, long userId, CommentDto commentDto) {
-        if (userId == -1) throw new ValidationException("Не определен заголовок X-Sharer-User-Id");
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
-       /* List<Booking> booking = bookingRepository.findBookigsToCheckForAddingAComment(
-                itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
-        if (booking.isEmpty()) throw new ValidationException("Ошибочный запрос");
-*/
         Comment comment = CommentMapper.toComment(commentDto);
-        comment.setItem(item);
-        comment.setAuthor(user);
+        comment.setItem(getItemById(userId, itemId));
+        comment.setAuthor(userRepository.findById(userId).get());
         comment.setCreated(LocalDateTime.now());
         commentRepository.save(comment);
         commentDto = CommentMapper.toDto(comment);
         commentDto.setAuthorName(userService.get(userId).getName());
         return commentDto;
+    }
+
+    private void addCommentsToItem(Item item) {
+        Set<Comment> comments = new HashSet<>(commentRepository.findAllByItem(item.getId()));
+        item.setComment(comments);
     }
 }
