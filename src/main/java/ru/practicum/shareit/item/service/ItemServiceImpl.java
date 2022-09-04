@@ -140,10 +140,10 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
-        List<Booking> booking = bookingRepository.findBookigsToCheckForAddingAComment(
+       /* List<Booking> booking = bookingRepository.findBookigsToCheckForAddingAComment(
                 itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
         if (booking.isEmpty()) throw new ValidationException("Ошибочный запрос");
-
+*/
         Comment comment = CommentMapper.toComment(commentDto);
         comment.setItem(item);
         comment.setAuthor(user);

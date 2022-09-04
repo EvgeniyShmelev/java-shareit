@@ -2,36 +2,34 @@ package ru.practicum.shareit.booking.repository;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 
-@Component
+@Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    Collection<Booking> findAllByBookingId(long userId, Sort start);
+    Collection<Booking> findByBooker_Id(Long userId, Sort sort);
 
-    Collection<Booking> findBookingsByStatus(long userId, BookingStatus waiting, Sort start);
+    Collection<Booking> findByBooker_IdAndStatus(Long userId, BookingStatus waiting, Sort sort);
 
-    Collection<Booking> findPastBookings(long userId, LocalDateTime now, Sort start);
+    Collection<Booking> findByBooker_IdAndEndIsBefore(Long userId, LocalDateTime end, Sort sort);
 
-    Collection<Booking> findFutureBookings(long userId, LocalDateTime now, Sort start);
+    Collection<Booking> findByBooker_IdAndStartIsAfter(Long userId, LocalDateTime start, Sort sort);
 
-    Collection<Booking> findCurrentBookings(long userId, LocalDateTime now, Sort start);
+    Collection<Booking> findByBooker_IdAndStartIsBeforeAndEndIsAfter(Long userId, LocalDateTime now, LocalDateTime now1, Sort sort);
 
-    Collection<Booking> findAllByOwnerId(long userId, Sort start);
+    Collection<Booking> findByItem_Owner_Id(Long userId, Sort sort);
 
-    Collection<Booking> findBookingsByOwnerIdAndStatus(long userId, BookingStatus waiting, Sort start);
+    Collection<Booking> findByItem_Owner_IdAndStatus(Long userId, BookingStatus waiting, Sort sort);
 
-    Collection<Booking> findPastBookingsByOwnerId(long userId, LocalDateTime now, Sort start);
+    Collection<Booking> findByItem_Owner_IdAndEndIsBefore(Long userId, LocalDateTime now, Sort sort);
 
-    Collection<Booking> findFutureBookingsByOwnerId(long userId, LocalDateTime now, Sort start);
+    Collection<Booking> findByItem_Owner_IdAndStartIsAfter(Long userId, LocalDateTime now, Sort sort);
 
-    Collection<Booking> findCurrentBookingsByOwnerId(long userId, LocalDateTime now, Sort start);
+    Collection<Booking> findByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(Long userId, LocalDateTime now, LocalDateTime now1, Sort sort);
 
-    List<Booking> findBookigsToCheckForAddingAComment(long itemId, long userId, BookingStatus approved, LocalDateTime now);
 }

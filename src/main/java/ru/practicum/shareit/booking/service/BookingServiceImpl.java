@@ -31,7 +31,7 @@ public class BookingServiceImpl implements BookingService {
     private final NumberGenerator numberGenerator;
 
     @Override
-    public BookingDto add(long userId, BookingDto bookingDto) {
+    public BookingDto add(Long userId, BookingDto bookingDto) {
         User user = userRepository.getReferenceById(userId);
         Item item = itemRepository.getReferenceById(bookingDto.getItem().getId());
         if (!item.getAvailable())
@@ -50,7 +50,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto update(long userId, long bookingId, String approved) {
+    public BookingDto update(Long userId, Long bookingId, String approved) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("такого запроса нет в списке"));
         if (!booking.getItem().getOwner().getId().equals(userId))
@@ -65,7 +65,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto getById(long userId, long bookingId) {
+    public BookingDto getById(Long userId, Long bookingId) {
         userRepository.findById(userId);
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("такого запроса нет в списке"));
@@ -76,33 +76,29 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Collection<BookingDto> getBookingsByUser(long userId, BookingState state) {
+    public Collection<BookingDto> getBookingsByUser(Long userId, BookingState state) {
         Collection<Booking> bookings;
         bookings = new ArrayList<>();
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        LocalDateTime dateTime = LocalDateTime.now();
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByBookingId(
-                        userId, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByBooker_Id(userId, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case WAITING:
-                bookings = bookingRepository.findBookingsByStatus(
-                        userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByBooker_IdAndStatus(userId, BookingStatus.WAITING, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case REJECTED:
-                bookings = bookingRepository.findBookingsByStatus(
-                        userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByBooker_IdAndStatus(userId, BookingStatus.REJECTED, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case PAST:
-                bookings = bookingRepository.findPastBookings(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByBooker_IdAndEndIsBefore(userId, dateTime, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case FUTURE:
-                bookings = bookingRepository.findFutureBookings(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByBooker_IdAndStartIsAfter(userId, dateTime, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookings(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfter(userId, dateTime, dateTime, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
         }
         return bookings
@@ -112,33 +108,29 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Collection<BookingDto> getBookingByOwner(long userId, BookingState state) {
+    public Collection<BookingDto> getBookingByOwner(Long userId, BookingState state) {
         Collection<Booking> bookings;
         bookings = new ArrayList<>();
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        LocalDateTime dateTime = LocalDateTime.now();
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByOwnerId(
-                        userId, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByItem_Owner_Id(userId, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case WAITING:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(
-                        userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case REJECTED:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(
-                        userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case PAST:
-                bookings = bookingRepository.findPastBookingsByOwnerId(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByItem_Owner_IdAndEndIsBefore(userId, dateTime, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case FUTURE:
-                bookings = bookingRepository.findFutureBookingsByOwnerId(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByItem_Owner_IdAndStartIsAfter(userId, dateTime, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookingsByOwnerId(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, dateTime, dateTime, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
         }
         return bookings
@@ -148,7 +140,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void deleteBooking(long userId, long bookingId) {
+    public void deleteBooking(Long userId, Long bookingId) {
         bookingRepository.deleteById(bookingId);
     }
 }

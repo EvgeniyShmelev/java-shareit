@@ -36,7 +36,6 @@ public class Item {
     private User owner;         //владелец вещи;
 
     @Column(name = "request_id")
-
     private Long request; /*если вещь была создана по запросу другого пользователя,
      то в этом поле будет храниться
     ссылка на соответствующий запрос.*/
