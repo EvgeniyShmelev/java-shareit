@@ -16,6 +16,7 @@ import ru.practicum.shareit.item.repository.item.ItemRepository;
 import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.dto.item.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.model.User;
@@ -64,41 +65,27 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Transactional
-    public ItemDto add(long userId, ItemDto itemDto) {
-        if (userId <= 0 || userService.get(userId) == null) {
-            throw new ValidationException("ID меньше или равно 0");
-        }
-        if (itemDto.getName() == null || itemDto.getName().isEmpty()) {
-            log.info("Нет наименования вещи");
-            throw new ValidationException("Нет наименования вещи");
-        }
-        if (itemDto.getDescription() == null) {
-            log.info("Нет описания вещи");
-            throw new ValidationException("Нет описания вещи");
-        }
-        if (itemDto.getAvailable() == null) {
-            log.info("Нет статуса доступности вещи");
-            throw new ValidationException("Отсутствует статус доступности вещи");
-        }
-        Optional<User> owner = userRepository.findById(userId);
-        Item item = ItemMapper.toItem(owner.get(), itemDto, null);
+    public ItemDto add(Long userId, ItemDto itemDto) {
+        checkUser(userId);
+        User user = UserMapper.toUser(userService.get(userId));
+        Item item = ItemMapper.toItem(itemDto);
         item.setId(numberGenerator.getId());
+        item.setOwner(user);
         itemRepository.save(item);
         return ItemMapper.toItemDto(item);
     }
 
     @Transactional
     public ItemDto update(long userId, long itemId, ItemDto itemDto) {
-        if (userId <= 0) {
-            log.info("ID пользователя равно 0");
-            throw new ValidationException("ID пользователя меньше или равно 0");
-        }
-        if (userService.get(userId) == null) {
-            log.info("Пользователь {} не существует", userId);
-            throw new ValidationException("Пользователь " + userId + " не существует");
-        }
-        Optional<User> owner = userRepository.findById(userId);
-        Item item = ItemMapper.toItem(owner.get(), itemDto, null);
+        checkUser(userId);
+        Item item = itemRepository.findByIdAndOwner_Id(itemId, userId)
+                .orElseThrow(() -> new NotFoundException("неверный идентификатор пользователя"));
+        if (itemDto.getName() != null)
+            item.setName(itemDto.getName());
+        if (itemDto.getDescription() != null)
+            item.setDescription(itemDto.getDescription());
+        if (itemDto.getAvailable() != null)
+            item.setAvailable(itemDto.getAvailable());
         itemRepository.save(item);
         return ItemMapper.toItemDto(item);
     }
@@ -146,5 +133,13 @@ public class ItemServiceImpl implements ItemService {
     private void addCommentsToItem(Item item) {
         Set<Comment> comments = new HashSet<>(commentRepository.findAllByItem(item.getId()));
         item.setComment(comments);
+    }
+
+    private void checkUser(Long id) {
+        try {
+            userService.get(id);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("такого пользователя нет в списке");
+        }
     }
 }

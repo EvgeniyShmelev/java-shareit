@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
@@ -14,5 +15,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "or upper(i.description) like upper(concat('%', ?1, '%')) and i.available = true")
     Collection<Item> search(String text);
 
-    Item getItemById(Long id);
+    Optional<Item> findByIdAndOwner_Id(Long id, Long owner);
 }
