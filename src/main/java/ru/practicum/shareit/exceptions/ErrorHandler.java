@@ -38,11 +38,19 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleConflictException(final javax.validation.ValidationException e) {
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConflictException(final AlreadyExistException e) {
         log.error(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
     }
+
+    /*@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleConflictException(final Throwable e) {
+        log.error(e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }*/
 }

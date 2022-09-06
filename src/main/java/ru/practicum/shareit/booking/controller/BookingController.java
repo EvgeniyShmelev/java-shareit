@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Create;
+import ru.practicum.shareit.booking.dto.BookingAddDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
@@ -22,14 +23,14 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookingDto add(@RequestHeader("X-Sharer-User-Id") long userId,
-                          @Validated(Create.class) @RequestBody BookingDto bookingDto) {
-        log.info("Добавлен запрос на бронирование: {}", bookingDto);
-        return bookingService.add(userId, bookingDto);
+                          @Validated(Create.class) @RequestBody BookingAddDto bookingAddDto) {
+        log.info("Добавлен запрос на бронирование: {}", bookingAddDto);
+        return bookingService.add(userId, bookingAddDto);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDto update(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long bookingId,
-                                   @RequestParam String approved) {
+                             @RequestParam String approved) {
         log.info("Обновлено бронирование: {}", bookingId);
         return bookingService.update(userId, bookingId, approved);
     }
@@ -42,14 +43,14 @@ public class BookingController {
 
     @GetMapping()
     public Collection<BookingDto> getBookingsByUser(@RequestHeader("X-Sharer-User-Id") long userId,
-                                      @RequestParam(value = "state", required = false) BookingState state) {
+                                                    @RequestParam(defaultValue = "ALL", required = false) BookingState state) {
         log.info("Получен запрос бронирований пользователя {}", userId);
         return bookingService.getBookingsByUser(userId, state);
     }
 
     @GetMapping("/owner")
     public Collection<BookingDto> getBookingByIdByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                        @RequestParam(value = "state", required = false) BookingState state) {
+                                                        @RequestParam(defaultValue = "ALL", required = false) BookingState state) {
         log.info("Получен запрос бронирования вещи пользователя {}", userId);
         return bookingService.getBookingByOwner(userId, state);
     }

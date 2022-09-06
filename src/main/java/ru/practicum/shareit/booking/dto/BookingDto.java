@@ -5,7 +5,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 /**
  * Класс представления для бронирования вещи
@@ -13,8 +13,8 @@ import java.sql.Date;
 @Data
 public class BookingDto {
     private Long id;        //уникальный идентификатор бронирования;
-    private Date start;     //дата начала бронирования;
-    private Date end;       //дата конца бронирования;
+    private LocalDateTime start;     //дата начала бронирования;
+    private LocalDateTime end;       //дата конца бронирования;
     private Item item;      //вещь, которую пользователь бронирует;
     private User booker;    //пользователь, который осуществляет бронирование;
     private BookingStatus status;  //статус бронирования.

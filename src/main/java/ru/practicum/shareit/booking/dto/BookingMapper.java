@@ -18,13 +18,11 @@ public class BookingMapper {
         return bookingDto;
     }
 
-    public static Booking toBooking(BookingDto bookingDto) {
+    public static Booking toBooking(BookingAddDto bookingAddDto) {
 
         Booking booking = new Booking();
-        booking.setId(bookingDto.getId());
-        booking.setStart(bookingDto.getStart());
-        booking.setEnd(bookingDto.getEnd());
-        booking.setItem(bookingDto.getItem());
+        booking.setStart(bookingAddDto.getStart());
+        booking.setEnd(bookingAddDto.getEnd());
         return booking;
     }
 }
