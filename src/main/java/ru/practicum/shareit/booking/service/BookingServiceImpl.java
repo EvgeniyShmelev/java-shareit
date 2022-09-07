@@ -111,11 +111,8 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfter(userId, dateTime, dateTime, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
                 break;
-            default:
-                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
-        return bookings
-                .stream()
+        return bookings.stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
@@ -126,6 +123,7 @@ public class BookingServiceImpl implements BookingService {
         bookings = new ArrayList<>();
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         LocalDateTime dateTime = LocalDateTime.now();
+
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findByItem_Owner_Id(userId, sort);
@@ -151,8 +149,6 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, dateTime, dateTime, sort);
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
                 break;
-            default:
-                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
         return bookings
                 .stream()

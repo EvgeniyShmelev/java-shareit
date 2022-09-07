@@ -1,6 +1,7 @@
 package ru.practicum.shareit.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -46,11 +47,12 @@ public class ErrorHandler {
         );
     }
 
-    /*@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleConflictException(final Throwable e) {
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingStatusException(ConversionFailedException e) {
         log.error(e.getMessage());
         return new ErrorResponse(
-                e.getMessage()
+                ("Unknown state: UNSUPPORTED_STATUS")
         );
-    }*/
+    }
 }
