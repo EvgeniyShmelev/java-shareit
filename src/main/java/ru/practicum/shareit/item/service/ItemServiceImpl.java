@@ -51,7 +51,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("такой вещи нет в списке"));
         if (itemRepository.findByIdAndOwner_Id(itemId, userId).isPresent()) {
             ItemUserDto toItemDto = ItemMapper.toItemUserDto(item);
-            //itemDto.setComments(findAllCommentByItem(item.getId()));
+            toItemDto.setComments(findAllCommentByItem(item.getId()));
             if (bookingRepository.findLastByItem_IdAndEndIsBefore(itemId, dateTime).isPresent())
                 toItemDto.setLastBooking(BookingMapper.toBookingDto(
                         bookingRepository.findLastByItem_IdAndEndIsBefore(itemId, dateTime).get()));
@@ -60,7 +60,9 @@ public class ItemServiceImpl implements ItemService {
                         bookingRepository.findFirstByItem_IdAndEndIsAfter(itemId, dateTime).get()));
             return toItemDto;
         } else {
-            return ItemMapper.toItemDto(item);
+            ItemDto itemDto = ItemMapper.toItemDto(item);
+            itemDto.setComments(findAllCommentByItem(itemId));
+            return itemDto;
         }
     }
 
@@ -140,6 +142,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long itemId, long userId, CommentDto commentDto) {
+        bookingRepository.findByBooker_IdAndItem_IdAndEndIsBefore(userId, itemId, LocalDateTime.now())
+                .orElseThrow(() -> new ValidationException("Такого пользователя нет"));
         Comment comment = CommentMapper.toComment(commentDto);
         comment.setItem(getItemById(userId, itemId));
         comment.setAuthor(userRepository.findById(userId).get());
@@ -150,9 +154,18 @@ public class ItemServiceImpl implements ItemService {
         return commentDto;
     }
 
-    private void addCommentsToItem(Item item) {
-        Set<Comment> comments = new HashSet<>(commentRepository.findAllByItem(item.getId()));
-
+    private Collection<CommentDto> findAllCommentByItem(Long itemId) {
+        Collection<Comment> commentList;
+        Collection<CommentDto> commentDtoList = new ArrayList<>();
+        try {
+            commentList = commentRepository.findAllByItem_Id(itemId);
+        } catch (NoSuchElementException e) {
+            return commentDtoList;
+        }
+        commentDtoList = commentList.stream().map(CommentMapper::toDto).collect(Collectors.toList());
+        commentDtoList.forEach(commentDto ->
+                commentDto.setAuthorName(userService.get(commentDto.getAuthorId()).getName()));
+        return commentDtoList;
     }
 
     private void checkUser(Long id) {

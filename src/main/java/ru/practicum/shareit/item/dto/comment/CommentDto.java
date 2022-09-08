@@ -11,9 +11,7 @@ public class CommentDto {
     private long id;
     @NotBlank(groups = Create.class)
     private String text;
+    private Long authorId;
     private String authorName;
     private LocalDateTime created;
-
-    public CommentDto() {
-    }
 }
