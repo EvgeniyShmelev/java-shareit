@@ -24,4 +24,16 @@ public class ItemMapper {
         item.setAvailable(itemDto.getAvailable());
         return item;
     }
+
+    public static ItemUserDto toItemUserDto(Item item) {
+        ItemUserDto toItemUserDto = new ItemUserDto();
+        toItemUserDto.setId(item.getId());
+        toItemUserDto.setName(item.getName());
+        toItemUserDto.setDescription(item.getDescription());
+        toItemUserDto.setAvailable(item.getAvailable());
+        toItemUserDto.setRequestId(item.getRequest());
+        if (toItemUserDto.getRequestId() != null)
+            item.setRequest(toItemUserDto.getRequestId());
+        return toItemUserDto;
+    }
 }

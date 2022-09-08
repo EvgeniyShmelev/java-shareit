@@ -5,20 +5,22 @@ import ru.practicum.shareit.item.dto.comment.CommentDto;
 import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.List;
+import java.util.Collection;
 
 @Service
 public interface ItemService {
 
     Item getItemById(long userId, long itemId);
 
-    List<ItemDto> getItems(long userId);
+    Object getItemDtoById(long userId, long itemId);
+
+    Object[] getItems(long userId);
 
     ItemDto add(Long userId, ItemDto itemDto);
 
     ItemDto update(long userId, long itemId, ItemDto itemDto);
 
-    List<ItemDto> search(long userId, String searchItem);
+    Collection<ItemDto> search(long userId, String searchItem);
 
     void delete(long userId, long itemId);
 

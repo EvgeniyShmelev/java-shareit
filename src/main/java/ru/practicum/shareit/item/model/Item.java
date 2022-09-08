@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.model;
 
 import lombok.*;
 import org.hibernate.Hibernate;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -41,9 +42,6 @@ public class Item {
     private Long request; /*если вещь была создана по запросу другого пользователя,
      то в этом поле будет храниться
     ссылка на соответствующий запрос.*/
-
-    @Transient
-    private Set<Comment> comment = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

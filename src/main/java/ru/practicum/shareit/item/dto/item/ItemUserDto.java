@@ -7,11 +7,10 @@ import ru.practicum.shareit.item.dto.comment.CommentDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.List;
 
 @Data
-public class ItemDto {
-
+public class ItemUserDto {
     private long id;
     @NotBlank(groups = Create.class)
     private String name;
@@ -22,6 +21,5 @@ public class ItemDto {
     private Long requestId; //в этом поле будет храниться ссылка на соответствующий запрос
     private BookingDto lastBooking;
     private BookingDto nextBooking;
-    private Collection<CommentDto> comments;
-
+    private List<CommentDto> comments;
 }
