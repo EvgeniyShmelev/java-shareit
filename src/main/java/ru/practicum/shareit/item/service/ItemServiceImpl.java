@@ -2,8 +2,9 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -24,7 +25,10 @@ import ru.practicum.shareit.utill.NumberGenerator;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
     private final NumberGenerator numberGenerator;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
+    private final ModelMapper modelMapper;
 
     public Item getItemById(long userId, long itemId) {
         return itemRepository.findById(itemId)
@@ -53,11 +58,11 @@ public class ItemServiceImpl implements ItemService {
             ItemUserDto toItemDto = ItemMapper.toItemUserDto(item);
             toItemDto.setComments(findAllCommentByItem(item.getId()));
             if (bookingRepository.findLastByItem_IdAndEndIsBefore(itemId, dateTime).isPresent())
-                toItemDto.setLastBooking(BookingMapper.toBookingDto(
-                        bookingRepository.findLastByItem_IdAndEndIsBefore(itemId, dateTime).get()));
+                toItemDto.setLastBooking(modelMapper.map(
+                        bookingRepository.findLastByItem_IdAndEndIsBefore(itemId, dateTime).get(), BookingDto.class));
             if (bookingRepository.findFirstByItem_IdAndEndIsAfter(itemId, dateTime).isPresent())
-                toItemDto.setNextBooking(BookingMapper.toBookingDto(
-                        bookingRepository.findFirstByItem_IdAndEndIsAfter(itemId, dateTime).get()));
+                toItemDto.setNextBooking(modelMapper.map(
+                        bookingRepository.findFirstByItem_IdAndEndIsAfter(itemId, dateTime).get(), BookingDto.class));
             return toItemDto;
         } else {
             ItemDto itemDto = ItemMapper.toItemDto(item);
@@ -73,11 +78,11 @@ public class ItemServiceImpl implements ItemService {
         if (itemRepository.findAllByOwner_Id(userId) != null) {
             itemList.forEach(itemOwnerDto -> {
                 if (bookingRepository.findLastByItem_IdAndEndIsBefore(itemOwnerDto.getId(), dateTime).isPresent())
-                    itemOwnerDto.setLastBooking(BookingMapper.toBookingDto(bookingRepository
-                            .findLastByItem_IdAndEndIsBefore(itemOwnerDto.getId(), dateTime).get()));
+                    itemOwnerDto.setLastBooking(modelMapper.map(bookingRepository
+                            .findLastByItem_IdAndEndIsBefore(itemOwnerDto.getId(), dateTime).get(), BookingDto.class));
                 if (bookingRepository.findFirstByItem_IdAndEndIsAfter(itemOwnerDto.getId(), dateTime).isPresent())
-                    itemOwnerDto.setNextBooking(BookingMapper.toBookingDto(bookingRepository
-                            .findFirstByItem_IdAndEndIsAfter(itemOwnerDto.getId(), dateTime).get()));
+                    itemOwnerDto.setNextBooking(modelMapper.map(bookingRepository
+                            .findFirstByItem_IdAndEndIsAfter(itemOwnerDto.getId(), dateTime).get(), BookingDto.class));
             });
             return itemList.toArray();
         } else {

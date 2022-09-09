@@ -30,11 +30,11 @@ public class Booking {
     @Column(name = "end_date")
     private LocalDateTime end;               //дата конца бронирования;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne
     @JoinColumn(name = "item_id")
     private Item item;              //вещь, которую пользователь бронирует;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne
     @JoinColumn(name = "booker_id")
     private User booker;            //пользователь, который осуществляет бронирование;
 
@@ -54,6 +54,6 @@ public class Booking {
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return id.hashCode();
     }
 }

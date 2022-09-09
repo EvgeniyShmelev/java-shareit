@@ -1,11 +1,11 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingAddDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -17,7 +17,6 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.utill.NumberGenerator;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -31,7 +30,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemService itemService;
     private final UserService userService;
-    private final NumberGenerator numberGenerator;
+    private final ModelMapper modelMapper;
 
     @Transactional
     @Override
@@ -44,13 +43,13 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("неверно указано время");
         if (item.getOwner().getId().equals(userId))
             throw new NotFoundException("неверный идентификатор пользователя");
-        Booking booking = BookingMapper.toBooking(bookingAddDto);
-        booking.setId(numberGenerator.getId());
+        //Booking booking = BookingMapper.toBooking(bookingAddDto);
+        Booking booking = modelMapper.map(bookingAddDto, Booking.class);
         booking.setBooker(user);
         booking.setItem(item);
         booking.setStatus(BookingStatus.WAITING);
         bookingRepository.save(booking);
-        return BookingMapper.toBookingDto(booking);
+        return modelMapper.map(booking, BookingDto.class);
     }
 
     @Transactional
@@ -66,7 +65,7 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(BookingStatus.APPROVED);
         } else booking.setStatus(BookingStatus.REJECTED);
         bookingRepository.save(booking);
-        return BookingMapper.toBookingDto(booking);
+        return modelMapper.map(booking, BookingDto.class);
     }
 
     @Override
@@ -75,7 +74,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("такого запроса нет в списке"));
         if (booking.getBooker().getId().equals(userId) || booking.getItem().getOwner().getId().equals(userId))
-            return BookingMapper.toBookingDto(booking);
+            return modelMapper.map(booking, BookingDto.class);
         else
             throw new NotFoundException("неверный идентификатор пользователя");
     }
@@ -113,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
                 break;
         }
         return bookings.stream()
-                .map(BookingMapper::toBookingDto)
+                .map(booking -> modelMapper.map(booking,BookingDto.class))
                 .collect(Collectors.toList());
     }
 
@@ -150,9 +149,8 @@ public class BookingServiceImpl implements BookingService {
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
                 break;
         }
-        return bookings
-                .stream()
-                .map(BookingMapper::toBookingDto)
+        return bookings.stream()
+                .map(booking -> modelMapper.map(booking,BookingDto.class))
                 .collect(Collectors.toList());
     }
 

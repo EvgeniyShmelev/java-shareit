@@ -9,7 +9,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.utill.NumberGenerator;
 
 import javax.transaction.Transactional;
 import java.sql.SQLException;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final NumberGenerator numberGenerator;
 
     @Override
     public UserDto get(Long userId) {
@@ -37,7 +35,6 @@ public class UserServiceImpl implements UserService {
     public UserDto add(UserDto userDto) {
         checkUser(userDto);
         User user = UserMapper.toUser(userDto);
-        user.setId(numberGenerator.getId());
         return UserMapper.toUserDto(userRepository.save(user));
     }
 

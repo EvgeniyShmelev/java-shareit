@@ -15,23 +15,9 @@ public class BookingDto {
     private Long id;        //уникальный идентификатор бронирования;
     private LocalDateTime start;     //дата начала бронирования;
     private LocalDateTime end;       //дата конца бронирования;
-    private BookingItem item;      //вещь, которую пользователь бронирует;
-    private BookingUser booker;    //пользователь, который осуществляет бронирование;
+    private Item item;      //вещь, которую пользователь бронирует;
+    private User booker;    //пользователь, который осуществляет бронирование;
     private BookingStatus status;  //статус бронирования.
     //Может принимать одно из следующих значений: WAITING, APPROVED, REJECTED, CANCELED
     private Long bookerId;
-
-    public BookingDto() {
-    }
-
-    @Data
-    public static class BookingUser {
-        private final long id;
-    }
-
-    @Data
-    public static class BookingItem {
-        private final long id;
-        private final String name;
-    }
 }
