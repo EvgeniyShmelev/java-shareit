@@ -43,7 +43,6 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("неверно указано время");
         if (item.getOwner().getId().equals(userId))
             throw new NotFoundException("неверный идентификатор пользователя");
-        //Booking booking = BookingMapper.toBooking(bookingAddDto);
         Booking booking = modelMapper.map(bookingAddDto, Booking.class);
         booking.setBooker(user);
         booking.setItem(item);
