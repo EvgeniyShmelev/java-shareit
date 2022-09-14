@@ -21,7 +21,6 @@ import java.util.Objects;
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "request_id")
     private Long id;            //уникальный идентификатор запроса;
 
     @Column(name = "description")

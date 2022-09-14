@@ -36,7 +36,8 @@ public class Item {
     @JoinColumn(name = "owner_id")
     private User owner;         //владелец вещи;
 
-    @Column(name = "request_id")
+    @ManyToOne
+    @JoinColumn(name = "request_id")
     private ItemRequest request; /*если вещь была создана по запросу другого пользователя,
      то в этом поле будет храниться
     ссылка на соответствующий запрос.*/

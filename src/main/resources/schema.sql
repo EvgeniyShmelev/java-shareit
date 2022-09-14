@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS items
     description  VARCHAR(512) NOT NULL,
     is_available BOOLEAN NOT NULL,
     owner_id BIGINT,
-    request_id   BIGINT
+    request_id BIGINT
 );
 
 CREATE TABLE IF NOT EXISTS bookings
