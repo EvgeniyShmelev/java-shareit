@@ -5,6 +5,7 @@ import org.hibernate.Hibernate;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -24,6 +25,7 @@ public class ItemRequest {
     private Long id;            //уникальный идентификатор запроса;
 
     @Column(name = "description")
+    @Size(max = 512)
     private String description; //текст запроса, содержащий описание требуемой вещи;
 
     @ManyToOne

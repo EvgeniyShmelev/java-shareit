@@ -2,13 +2,11 @@ package ru.practicum.shareit.item.model;
 
 import lombok.*;
 import org.hibernate.Hibernate;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Класс вещи для аренды
@@ -39,7 +37,7 @@ public class Item {
     private User owner;         //владелец вещи;
 
     @Column(name = "request_id")
-    private Long request; /*если вещь была создана по запросу другого пользователя,
+    private ItemRequest request; /*если вещь была создана по запросу другого пользователя,
      то в этом поле будет храниться
     ссылка на соответствующий запрос.*/
 

@@ -7,6 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.dto.item.ItemDto;
+import ru.practicum.shareit.item.repository.item.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestListInfoDto;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -14,6 +16,7 @@ import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -23,13 +26,23 @@ public class RequestServiceImpl implements RequestService {
     private final ModelMapper modelMapper;
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     public ItemRequestListInfoDto addRequest(Long requester, ItemRequestDto itemRequestDto) {
-        User user = validateUser(requester);
         ItemRequest request = modelMapper.map(itemRequestDto, ItemRequest.class);
-        request.setRequester(user);
-        requestRepository.save(request);
-        return modelMapper.map(request, ItemRequestListInfoDto.class);
+        request.setRequester(validateUser(requester));
+        request.setCreated(LocalDateTime.now());
+        ItemRequestListInfoDto itemRequestListInfoDto = modelMapper
+                .map(requestRepository.save(request), ItemRequestListInfoDto.class);
+
+        Collection<ItemDto> itemList = itemRepository.findByRequest_Id(requester)
+                .stream()
+                .map(itemRequest -> modelMapper.map(itemRequest, ItemDto.class))
+                .collect(Collectors.toList());
+
+        itemRequestListInfoDto.setItems(itemList);
+
+        return itemRequestListInfoDto;
     }
 
     public Collection<ItemRequestListInfoDto> findAllByRequester(Long userId) {
