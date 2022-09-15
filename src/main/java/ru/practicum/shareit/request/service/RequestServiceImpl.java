@@ -39,7 +39,7 @@ public class RequestServiceImpl implements RequestService {
                 .stream()
                 .map(itemRequest -> modelMapper.map(itemRequest, ItemDto.class))
                 .collect(Collectors.toList());
-
+        
         itemRequestListInfoDto.setItems(itemList);
 
         return itemRequestListInfoDto;
@@ -66,11 +66,18 @@ public class RequestServiceImpl implements RequestService {
         validateUser(userId);
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
 
-        return requestRepository
+        Collection<ItemRequestListInfoDto> itemRequestListInfoDtoList = requestRepository
                 .findByRequester_IdIsNot(userId, PageRequest.of(from, size, sort))
                 .stream()
                 .map(itemRequest -> modelMapper.map(itemRequest, ItemRequestListInfoDto.class))
                 .collect(Collectors.toList());
+
+        itemRequestListInfoDtoList.forEach(itemRequestListInfoDto -> itemRequestListInfoDto.setItems(
+                itemRepository.findByRequest_Id(itemRequestListInfoDto.getId())
+                        .stream()
+                        .map(i -> modelMapper.map(i, ItemDto.class))
+                        .collect(Collectors.toList())));
+        return itemRequestListInfoDtoList;
     }
 
     public ItemRequestListInfoDto findByRequestId(Long userId, Long requestId) {
