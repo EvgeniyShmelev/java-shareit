@@ -8,6 +8,7 @@ import ru.practicum.shareit.Create;
 import ru.practicum.shareit.Update;
 import ru.practicum.shareit.item.dto.comment.CommentDto;
 import ru.practicum.shareit.item.dto.item.ItemDto;
+import ru.practicum.shareit.item.dto.item.ItemUserDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.Collection;
@@ -20,7 +21,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto add(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemUserDto add(@RequestHeader("X-Sharer-User-Id") long userId,
                        @Validated(Create.class)
                        @RequestBody ItemDto itemDto) {
         log.info("Добавлена вещь: {}", itemDto);
@@ -28,9 +29,9 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
-                          @PathVariable long itemId,
-                          @Validated(Update.class)
+    public ItemUserDto update(@RequestHeader("X-Sharer-User-Id") long userId,
+                              @PathVariable long itemId,
+                              @Validated(Update.class)
                           @RequestBody ItemDto itemDto) {
         log.info("Обновлена вещь: {}", itemDto);
         return itemService.update(userId, itemId, itemDto);

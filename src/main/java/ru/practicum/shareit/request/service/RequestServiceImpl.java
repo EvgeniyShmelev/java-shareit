@@ -16,6 +16,7 @@ import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
+    @Transactional
     public ItemRequestListInfoDto addRequest(Long requester, ItemRequestDto itemRequestDto) {
         ItemRequest request = modelMapper.map(itemRequestDto, ItemRequest.class);
         request.setRequester(validateUser(requester));
@@ -39,7 +41,7 @@ public class RequestServiceImpl implements RequestService {
                 .stream()
                 .map(itemRequest -> modelMapper.map(itemRequest, ItemDto.class))
                 .collect(Collectors.toList());
-        
+
         itemRequestListInfoDto.setItems(itemList);
 
         return itemRequestListInfoDto;

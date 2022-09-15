@@ -95,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Transactional
-    public ItemDto add(Long userId, ItemDto itemDto) {
+    public ItemUserDto add(Long userId, ItemDto itemDto) {
         checkUser(userId);
         User user = UserMapper.toUser(userService.get(userId));
         Item item = ItemMapper.toItem(itemDto);
@@ -108,11 +108,11 @@ public class ItemServiceImpl implements ItemService {
             item.setRequest(itemRequest);
         }
         itemRepository.save(item);
-        return ItemMapper.toItemDto(item);
+        return ItemMapper.toItemUserDto(item);
     }
 
     @Transactional
-    public ItemDto update(long userId, long itemId, ItemDto itemDto) {
+    public ItemUserDto update(long userId, long itemId, ItemDto itemDto) {
         checkUser(userId);
         Item item = itemRepository.findByIdAndOwner_Id(itemId, userId)
                 .orElseThrow(() -> new NotFoundException("неверный идентификатор пользователя"));
@@ -123,7 +123,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null)
             item.setAvailable(itemDto.getAvailable());
         itemRepository.save(item);
-        return ItemMapper.toItemDto(item);
+        return ItemMapper.toItemUserDto(item);
     }
 
     @Transactional
