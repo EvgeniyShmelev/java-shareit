@@ -48,10 +48,17 @@ public class RequestServiceImpl implements RequestService {
     public Collection<ItemRequestListInfoDto> findAllByRequester(Long userId) {
         validateUser(userId);
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
-        return requestRepository.findByRequester_Id(userId, sort)
+        Collection<ItemRequestListInfoDto> itemRequestListInfoDtoList = requestRepository.findByRequester_Id(userId, sort)
                 .stream()
                 .map(itemRequest -> modelMapper.map(itemRequest, ItemRequestListInfoDto.class))
                 .collect(Collectors.toList());
+
+        itemRequestListInfoDtoList.forEach(itemRequestListInfoDto -> itemRequestListInfoDto.setItems(
+                itemRepository.findByRequest_Id(itemRequestListInfoDto.getId())
+                        .stream()
+                        .map(i -> modelMapper.map(i, ItemDto.class))
+                        .collect(Collectors.toList())));
+        return itemRequestListInfoDtoList;
     }
 
     public Collection<ItemRequestListInfoDto> findRequestsByParams(Long userId, int from, int size) {

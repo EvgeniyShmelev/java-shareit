@@ -1,6 +1,9 @@
 package ru.practicum.shareit.request.model;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import ru.practicum.shareit.user.model.User;
 
@@ -32,6 +35,7 @@ public class ItemRequest {
     private User requester;     //пользователь, создавший запрос;
     
     private LocalDateTime created;       //дата и время создания запроса.
+
 
     @Override
     public boolean equals(Object o) {
