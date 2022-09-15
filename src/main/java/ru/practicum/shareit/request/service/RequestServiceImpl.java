@@ -34,17 +34,9 @@ public class RequestServiceImpl implements RequestService {
         ItemRequest request = modelMapper.map(itemRequestDto, ItemRequest.class);
         request.setRequester(validateUser(requester));
         request.setCreated(LocalDateTime.now());
-        ItemRequestListInfoDto itemRequestListInfoDto = modelMapper
+
+        return modelMapper
                 .map(requestRepository.save(request), ItemRequestListInfoDto.class);
-
-        Collection<ItemDto> itemList = itemRepository.findByRequest_Id(requester)
-                .stream()
-                .map(itemRequest -> modelMapper.map(itemRequest, ItemDto.class))
-                .collect(Collectors.toList());
-
-        itemRequestListInfoDto.setItems(itemList);
-
-        return itemRequestListInfoDto;
     }
 
     public Collection<ItemRequestListInfoDto> findAllByRequester(Long userId) {
