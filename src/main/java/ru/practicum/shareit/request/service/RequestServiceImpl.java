@@ -78,7 +78,17 @@ public class RequestServiceImpl implements RequestService {
         validateUser(userId);
         ItemRequest itemRequest = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Запрос не найден"));
-        return modelMapper.map(itemRequest, ItemRequestListInfoDto.class);
+
+        Collection<ItemDto> itemList = itemRepository.findByRequest_Id(requestId)
+                .stream()
+                .map(i -> modelMapper.map(i, ItemDto.class))
+                .collect(Collectors.toList());
+
+        ItemRequestListInfoDto itemRequestListInfoDtoList = modelMapper.map(itemRequest, ItemRequestListInfoDto.class);
+
+        itemRequestListInfoDtoList.setItems(itemList);
+
+        return itemRequestListInfoDtoList;
     }
 
     private User validateUser(Long id) {
