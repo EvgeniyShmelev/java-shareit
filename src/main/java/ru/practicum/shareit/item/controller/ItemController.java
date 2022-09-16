@@ -22,8 +22,8 @@ public class ItemController {
 
     @PostMapping
     public ItemUserDto add(@RequestHeader("X-Sharer-User-Id") long userId,
-                       @Validated(Create.class)
-                       @RequestBody ItemDto itemDto) {
+                           @Validated(Create.class)
+                           @RequestBody ItemDto itemDto) {
         log.info("Добавлена вещь: {}", itemDto);
         return itemService.add(userId, itemDto);
     }
@@ -32,14 +32,14 @@ public class ItemController {
     public ItemUserDto update(@RequestHeader("X-Sharer-User-Id") long userId,
                               @PathVariable long itemId,
                               @Validated(Update.class)
-                          @RequestBody ItemDto itemDto) {
+                              @RequestBody ItemDto itemDto) {
         log.info("Обновлена вещь: {}", itemDto);
         return itemService.update(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
     public Object getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
-                            @PathVariable long itemId) {
+                              @PathVariable long itemId) {
         log.info("Получен запрос вещи по ID");
         return itemService.getItemDtoById(userId, itemId);
     }
@@ -52,7 +52,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public Collection<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                    @RequestParam String text) {
+                                          @RequestParam String text) {
         log.info("Получен запрос вещей по наименованию");
         return itemService.search(userId, text);
     }
@@ -66,7 +66,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(@Validated(Create.class)
-                                     @RequestBody CommentDto commentDto,
+                                 @RequestBody CommentDto commentDto,
                                  @PathVariable long itemId,
                                  @RequestHeader(value = "X-Sharer-User-Id",
                                          defaultValue = "-1") long userId) {

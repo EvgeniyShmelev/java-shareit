@@ -11,6 +11,8 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 
 @RestController
@@ -43,18 +45,24 @@ public class BookingController {
 
     @GetMapping()
     public Collection<BookingDto> getBookingsByUser(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                    @RequestParam(defaultValue = "ALL",
-                                                            required = false) BookingState state) {
+                                                    @RequestParam(required = false, defaultValue = "ALL") BookingState state,
+                                                    @RequestParam(required = false, defaultValue = "0")
+                                                    @PositiveOrZero int from,
+                                                    @RequestParam(required = false, defaultValue = "1")
+                                                    @Positive int size) {
         log.info("Получен запрос бронирований пользователя {}", userId);
-        return bookingService.getBookingsByUser(userId, state);
+        return bookingService.getBookingsByUser(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public Collection<BookingDto> getBookingByIdByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                        @RequestParam(defaultValue = "ALL",
-                                                                required = false) BookingState state) {
+                                                        @RequestParam(required = false, defaultValue = "ALL") BookingState state,
+                                                        @RequestParam(required = false, defaultValue = "0")
+                                                        @PositiveOrZero int from,
+                                                        @RequestParam(required = false, defaultValue = "1")
+                                                        @Positive int size) {
         log.info("Получен запрос бронирования вещи пользователя {}", userId);
-        return bookingService.getBookingByOwner(userId, state);
+        return bookingService.getBookingByOwner(userId, state, from, size);
     }
 
     @DeleteMapping("/{bookingId}")

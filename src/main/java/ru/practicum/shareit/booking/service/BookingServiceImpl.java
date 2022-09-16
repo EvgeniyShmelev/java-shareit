@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingAddDto;
@@ -22,6 +25,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -79,11 +83,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Collection<BookingDto> getBookingsByUser(Long userId, BookingState state) {
+    public Collection<BookingDto> getBookingsByUser(Long userId, BookingState state, int from, int size) {
         Collection<Booking> bookings;
         bookings = new ArrayList<>();
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         LocalDateTime dateTime = LocalDateTime.now();
+        Pageable pageable = PageRequest.of(from, size, sort);
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findByBooker_Id(userId, sort);
@@ -110,18 +115,21 @@ public class BookingServiceImpl implements BookingService {
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
                 break;
         }
-        return bookings.stream()
-                .map(booking -> modelMapper.map(booking,BookingDto.class))
+        List<BookingDto> bookingDtoList = bookings.stream()
+                //как сделать пагинацию не меняя Collection на List???
+                .map(booking -> modelMapper.map(booking, BookingDto.class))
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(bookingDtoList.subList(from, bookings.size()), pageable, size).getContent();
     }
 
     @Override
-    public Collection<BookingDto> getBookingByOwner(Long userId, BookingState state) {
+    public Collection<BookingDto> getBookingByOwner(Long userId, BookingState state, int from, int size) {
         Collection<Booking> bookings;
         bookings = new ArrayList<>();
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         LocalDateTime dateTime = LocalDateTime.now();
-
+        Pageable pageable = PageRequest.of(from, size, sort);
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findByItem_Owner_Id(userId, sort);
@@ -148,9 +156,11 @@ public class BookingServiceImpl implements BookingService {
                 if (bookings.isEmpty()) throw new NotFoundException("Записи не найдены");
                 break;
         }
-        return bookings.stream()
-                .map(booking -> modelMapper.map(booking,BookingDto.class))
+        List<BookingDto> bookingDtoList = bookings.stream()
+                .map(booking -> modelMapper.map(booking, BookingDto.class))
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(bookingDtoList.subList(from, bookings.size()), pageable, size).getContent();
     }
 
     @Transactional

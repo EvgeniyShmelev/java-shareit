@@ -16,10 +16,10 @@ public interface BookingService {
     BookingDto getById(Long  userId, Long  bookingId);
 
     //Получение списка всех бронирований текущего пользователя.
-    Collection<BookingDto> getBookingsByUser(Long  userId, BookingState state);
+    Collection<BookingDto> getBookingsByUser(Long  userId, BookingState state, int from, int size);
 
     //Получение списка бронирований для всех вещей текущего пользователя
-    Collection<BookingDto> getBookingByOwner(Long  userId, BookingState state);
+    Collection<BookingDto> getBookingByOwner(Long  userId, BookingState state, int from, int size);
 
     void deleteBooking(Long  userId, Long  bookingId);
 
