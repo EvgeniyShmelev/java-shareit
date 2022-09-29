@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -89,5 +90,14 @@ public class UserServiceImplTest {
     void deleteUserByIdTest() {
         userService.remove(ID);
         verify(userRepository, times(1)).deleteById(ID);
+    }
+
+    @Test
+    void deleteUserByIncorrectIdTest() {
+        final ValidationException e = Assertions.assertThrows(
+                ValidationException.class,
+                () -> userService.remove(0L));
+
+        Assertions.assertEquals("ID пользователя меньше или равно 0", e.getMessage());
     }
 }
