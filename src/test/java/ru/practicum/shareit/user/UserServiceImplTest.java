@@ -3,8 +3,6 @@ package ru.practicum.shareit.user;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -17,11 +15,10 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
 public class UserServiceImplTest {
 
     public static final long ID = 1L;
-    
+
     private UserServiceImpl userService;
     private UserRepository userRepository;
     private User user;
