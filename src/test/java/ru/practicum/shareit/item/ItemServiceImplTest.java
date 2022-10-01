@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -74,6 +75,15 @@ public class ItemServiceImplTest {
         NotFoundException ex = assertThrows(NotFoundException.class,
                 () -> itemService.update(idUserNotOwner, item.getId(), updatedItem));
         assertEquals("неверный идентификатор пользователя", ex.getMessage());
+    }
+
+    @Test
+    void deleteItem() {
+        itemService.delete(user.getId(), item.getId());
+
+        NotFoundException ex = assertThrows(NotFoundException.class,
+                () -> itemService.getItemById(user.getId(), item.getId()));
+        assertEquals("такой вещи нет в списке", ex.getMessage());
     }
 
 }
