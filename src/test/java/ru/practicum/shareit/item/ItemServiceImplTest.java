@@ -2,11 +2,9 @@ package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.*;
 import ru.practicum.shareit.booking.dto.BookingAddDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -27,8 +25,6 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -225,9 +221,9 @@ public class ItemServiceImplTest {
     void search() {
         String text = "ПКРЦМ";
         Item item = new Item(2L, "ПКРЦМ", "КОМАГ",
-        true, user ,null );
+                true, user, null);
         Item item1 = new Item(3L, "APPLE", "IPHONE",
-                true, user ,null );
+                true, user, null);
         itemUserDto = itemService.add(userDto.getId(), ItemMapper.toItemDto(item));
         Collection<ItemDto> itemsList = itemService.search(1L, text);
 
