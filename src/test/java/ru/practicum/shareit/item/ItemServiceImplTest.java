@@ -2,10 +2,16 @@ package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.booking.dto.BookingAddDto;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.dto.item.ItemMapper;
 import ru.practicum.shareit.item.dto.item.ItemUserDto;
@@ -15,6 +21,9 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,10 +36,14 @@ public class ItemServiceImplTest {
     private ItemService itemService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private BookingService bookingService;
+    @Autowired
+    private ModelMapper modelMapper;
 
     private Item item;
-    private ItemDto itemDto;
     private ItemUserDto itemUserDto;
+    private ItemDto itemDto;
     private User user;
     private UserDto userDto;
 
@@ -60,7 +73,7 @@ public class ItemServiceImplTest {
         itemUserDto.setDescription("descriptionNew");
         itemUserDto.setAvailable(false);
 
-        assertEquals(itemUserDto, itemService.update(user.getId(), item.getId(), updatedItem));
+        assertEquals(itemUserDto, itemService.update(user.getId(), itemUserDto.getId(), updatedItem));
     }
 
     @Test
@@ -86,4 +99,120 @@ public class ItemServiceImplTest {
         assertEquals("такой вещи нет в списке", ex.getMessage());
     }
 
+    @Test
+    void deleteItemIncorrectUserId() {
+        ValidationException ex = assertThrows(ValidationException.class,
+                () -> itemService.delete(-1, item.getId()));
+        assertEquals("ID пользователя меньше или равно 0", ex.getMessage());
+    }
+
+    @Test
+    void deleteItemIncorrectItemId() {
+        ValidationException ex = assertThrows(ValidationException.class,
+                () -> itemService.delete(user.getId(), 0));
+        assertEquals("ID вещи меньше или равно 0", ex.getMessage());
+    }
+
+    @Test
+    void getItemEachUserById_Owner_WithNextBooking() {
+        User booker = new User(3L, "booker", "user3@email.com");
+        UserDto bookerDto = userService.add(UserMapper.toUserDto(booker));
+
+        LocalDateTime start = LocalDateTime.parse("2100-09-01T01:00");
+        LocalDateTime end = LocalDateTime.parse("2200-09-01T01:00");
+
+        Booking booking = new Booking(1L, start, end, item, booker, BookingStatus.WAITING);
+
+        BookingAddDto bookItemRequestDto = modelMapper.map(booking, BookingAddDto.class);
+        BookingDto bookingDto = bookingService.add(bookerDto.getId(), bookItemRequestDto);
+
+        User owner = UserMapper.toUser(userDto);
+        item.setOwner(owner);
+
+        ItemUserDto itemUserDto = ItemMapper.toItemUserDto(item);
+        itemUserDto.setComments(new ArrayList<>());
+        itemUserDto.setNextBooking(bookingDto);
+
+        assertEquals(itemUserDto, itemService.getItemDtoById(userDto.getId(), item.getId()));
+    }
+
+    @Test
+    void getItemEachUserById_Owner_WithLastBooking() {
+        User booker = new User(4L, "booker", "user4@email.com");
+        UserDto bookerDto = userService.add(UserMapper.toUserDto(booker));
+
+        LocalDateTime start = LocalDateTime.parse("1100-09-01T01:00");
+        LocalDateTime end = LocalDateTime.parse("1200-09-01T01:00");
+
+        Booking booking = new Booking(1L, start, end, item, booker, BookingStatus.WAITING);
+
+        BookingAddDto bookItemRequestDto = modelMapper.map(booking, BookingAddDto.class);
+        BookingDto bookingDto = bookingService.add(bookerDto.getId(), bookItemRequestDto);
+
+        User owner = UserMapper.toUser(userDto);
+        item.setOwner(owner);
+
+        ItemUserDto itemUserDto = ItemMapper.toItemUserDto(item);
+        itemUserDto.setComments(new ArrayList<>());
+        itemUserDto.setLastBooking(bookingDto);
+
+        assertEquals(itemUserDto, itemService.getItemDtoById(userDto.getId(), item.getId()));
+    }
+
+    @Test
+    void getAllItemsWithNextBooking() {
+        User booker = new User(5L, "booker", "user5@email.com");
+        UserDto bookerDto = userService.add(UserMapper.toUserDto(booker));
+
+        LocalDateTime start = LocalDateTime.parse("2100-09-01T01:00");
+        LocalDateTime end = LocalDateTime.parse("2200-09-01T01:00");
+
+        Booking booking = new Booking(1L, start, end, item, booker, BookingStatus.WAITING);
+        BookingAddDto bookItemRequestDto = modelMapper.map(booking, BookingAddDto.class);
+        BookingDto bookingDto = bookingService.add(bookerDto.getId(), bookItemRequestDto);
+
+        ItemUserDto itemUserDto = ItemMapper.toItemUserDto(item);
+
+        itemUserDto.setNextBooking(bookingDto);
+
+        Object[] itemsList = itemService.getItems(1L);
+
+        for (Object o : itemsList) {
+            itemDto = (ItemDto) o;
+            itemUserDto = modelMapper.map(itemDto, ItemUserDto.class);
+
+            assertEquals(1, itemsList.length);
+            assertEquals("item", itemDto.getName());
+            assertEquals("description", itemDto.getDescription());
+            assertEquals(1, itemUserDto.getNextBooking().getId());
+        }
+    }
+
+    @Test
+    void getAllItemsWithLastBooking() {
+        User booker = new User(6L, "booker", "user6@email.com");
+        UserDto bookerDto = userService.add(UserMapper.toUserDto(booker));
+
+        LocalDateTime start = LocalDateTime.parse("1100-09-01T01:00");
+        LocalDateTime end = LocalDateTime.parse("1200-09-01T01:00");
+
+        Booking booking = new Booking(1L, start, end, item, booker, BookingStatus.WAITING);
+        BookingAddDto bookItemRequestDto = modelMapper.map(booking, BookingAddDto.class);
+        BookingDto bookingDto = bookingService.add(bookerDto.getId(), bookItemRequestDto);
+
+        ItemUserDto itemUserDto = ItemMapper.toItemUserDto(item);
+        itemUserDto.setLastBooking(bookingDto);
+
+        Object[] itemsList = itemService.getItems(1L);
+
+        for (Object o : itemsList) {
+            itemDto = (ItemDto) o;
+            itemUserDto = modelMapper.map(itemDto, ItemUserDto.class);
+
+            assertEquals(1, itemsList.length);
+            assertEquals("item", itemDto.getName());
+            assertEquals("description", itemDto.getDescription());
+            assertEquals(1, itemUserDto.getLastBooking().getId());
+        }
+    }
 }
