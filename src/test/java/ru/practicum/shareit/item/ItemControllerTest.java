@@ -21,10 +21,15 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,8 +60,9 @@ public class ItemControllerTest {
     }
 
     @Test
-    void addItem() throws Exception {
-        when(itemService.add(any(), any())).thenReturn(itemUserDto);
+    void addItemTest() throws Exception {
+        when(itemService.add(any(), any()))
+                .thenReturn(itemUserDto);
 
         mockMvc.perform(
                         post("/items")
@@ -64,10 +70,93 @@ public class ItemControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("X-Sharer-User-Id", 1L)
                 )
-                .andExpect(status().is2xxSuccessful())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(itemDto.getName()))
                 .andExpect(jsonPath("$.description").value(itemDto.getDescription()));
 
+    }
+
+    @Test
+    void updateItemTest() throws Exception {
+        when(itemService.update(anyLong(), anyLong(), any()))
+                .thenReturn(itemUserDto);
+
+        mockMvc.perform(
+                        patch("/items/{itemId}", itemUserDto.getId())
+                                .content(mapper.writeValueAsString(itemUserDto))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-Sharer-User-Id", 1L)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value(itemUserDto.getName()))
+                .andExpect(jsonPath("$.description").value(itemUserDto.getDescription()));
+    }
+
+    @Test
+    void getItemByIdTest() throws Exception {
+        when(itemService.getItemDtoById(anyLong(), anyLong()))
+                .thenReturn(itemUserDto);
+        mockMvc.perform(
+                        get("/items/{itemId}", 1L)
+                                .header("X-Sharer-User-Id", 1L)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value(itemUserDto.getName()))
+                .andExpect(jsonPath("$.description").value(itemUserDto.getDescription()));
+    }
+
+    @Test
+    void getItemsTest() throws Exception {
+        Collection<ItemDto> items = List.of(itemDto);
+        when(itemService.getItems(anyLong()))
+                .thenReturn(items.toArray());
+        mockMvc.perform(
+                        get("/items")
+                                .header("X-Sharer-User-Id", 1L)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(items.size()));
+    }
+
+    @Test
+    void searchTest() throws Exception {
+        Collection<ItemDto> items = List.of(itemDto);
+        when(itemService.search(anyLong(), any()))
+                .thenReturn(items);
+        mockMvc.perform(get("/items/search")
+                        .header("X-Sharer-User-Id", 1)
+                        .param("text", "item")
+                        .param("from", "0")
+                        .param("size", "1"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("item")));
+    }
+
+    @Test
+    void deleteItemTest() throws Exception {
+        mockMvc.perform(delete("/items/1")
+                        .header("X-Sharer-User-Id", 1)
+                        .param("id", "1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void addCommentToItem() throws Exception {
+        when(itemService.addComment(anyLong(), anyLong(), any()))
+                .thenReturn(commentDto);
+
+        mockMvc.perform(
+                        post("/items/{itemId}/comment", 1L)
+                                .content(mapper.writeValueAsString(commentDto))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-Sharer-User-Id", 1L)
+                )
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.text").value(commentDto.getText()))
+                .andExpect(jsonPath("$.authorName").value(commentDto.getAuthorName()));
     }
 }
