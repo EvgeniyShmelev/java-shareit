@@ -42,20 +42,17 @@ public class ItemControllerTest {
     ObjectMapper mapper;
     @Autowired
     MockMvc mockMvc;
-    private User user;
-    private Item item;
     private ItemDto itemDto;
     private ItemUserDto itemUserDto;
-    private Comment comment;
     private CommentDto commentDto;
 
     @BeforeEach
     void beforeEach() {
-        user = new User(1L, "Evgeniy", "user1@email.com");
-        item = new Item(1L, "item", "description", true, null, null);
+        User user = new User(1L, "Evgeniy", "user1@email.com");
+        Item item = new Item(1L, "item", "description", true, null, null);
         itemDto = ItemMapper.toItemDto(item);
         itemUserDto = ItemMapper.toItemUserDto(item);
-        comment = new Comment(1L, "comment", item, user, LocalDateTime.now());
+        Comment comment = new Comment(1L, "comment", item, user, LocalDateTime.now());
         commentDto = CommentMapper.toDto(comment);
     }
 
