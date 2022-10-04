@@ -12,9 +12,12 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.dto.comment.CommentDto;
+import ru.practicum.shareit.item.dto.comment.CommentMapper;
 import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.dto.item.ItemMapper;
 import ru.practicum.shareit.item.dto.item.ItemUserDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -229,6 +232,29 @@ public class ItemServiceImplTest {
 
         assertEquals(1, itemsList.size());
         assertEquals("КОМАГ", new ArrayList<>(itemsList).get(0).getDescription());
+    }
+
+    @Test
+    void addCommentToItem() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = LocalDateTime.parse("1100-09-01T01:00");
+        LocalDateTime end = LocalDateTime.parse("1200-09-01T01:00");
+
+        User booker = new User(7L, "booker", "user7@email.com");
+        UserDto bookerDto = userService.add(UserMapper.toUserDto(booker));
+
+        Booking booking = new Booking(1L, start, end, item, booker, BookingStatus.WAITING);
+        BookingAddDto bookItemRequestDto = modelMapper.map(booking, BookingAddDto.class);
+        bookingService.add(bookerDto.getId(), bookItemRequestDto);
+
+        Comment comment = new Comment(1L, "comment", item, user, now);
+        CommentDto commentDto = CommentMapper.toDto(comment);
+
+        CommentDto result = itemService.addComment(itemUserDto.getId(), bookerDto.getId(), commentDto);
+
+        assertThat(result.getText()).isEqualTo("comment");
+
+        assertThat(result.getAuthorName()).isEqualTo(booker.getName());
     }
 
 }
