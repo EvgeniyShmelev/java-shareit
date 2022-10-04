@@ -51,7 +51,7 @@ public class BookingServiceImplTest {
     void beforeEach() {
         owner = new User(1L, "owner", "owner@gmail.com");
         booker = new User(2L, "booker", "booker@gmail.com");
-        thirdUser = new User(3L, "thirdUser", "another@gmail.com");
+        thirdUser = new User(3L, "thirdUser", "thirdUser@gmail.com");
         owner = UserMapper.toUser(userService.add(UserMapper.toUserDto(owner)));
         booker = UserMapper.toUser(userService.add(UserMapper.toUserDto(booker)));
         thirdUser = UserMapper.toUser(userService.add(UserMapper.toUserDto(thirdUser)));
@@ -60,11 +60,12 @@ public class BookingServiceImplTest {
         itemUserDto = itemService.add(owner.getId(), ItemMapper.toItemDto(item));
 
         booking = new Booking(1L, start, end, item, booker, BookingStatus.WAITING);
-        bookingDto = bookingService.add(booker.getId(), modelMapper.map(booking, BookingAddDto.class));
+        bookingAddDto = modelMapper.map(booking, BookingAddDto.class);
+        bookingDto = bookingService.add(booker.getId(), bookingAddDto);
     }
 
     @Test
-    void addBooking() {
+    void addBookingTest() {
         assertThat(bookingDto.getId()).isNotZero();
         assertThat(bookingDto.getBooker().getId()).isEqualTo(booker.getId());
         assertThat(bookingDto.getBooker().getName()).isEqualTo(booker.getName());
@@ -74,4 +75,17 @@ public class BookingServiceImplTest {
         assertThat(bookingDto.getItem().getName()).isEqualTo(item.getName());
         assertThat(bookingDto.getStatus()).isEqualTo(BookingStatus.WAITING);
     }
+
+    @Test
+    void updateBookingTest() {
+        bookingDto.setStatus(BookingStatus.APPROVED);
+        assertEquals(bookingDto, bookingService.update(owner.getId(), booking.getId(), "true"));
+    }
+
+    @Test
+    void getByIdTest() {
+        assertEquals(bookingDto, bookingService.getById(owner.getId(), booking.getId()));
+    }
+
+
 }
