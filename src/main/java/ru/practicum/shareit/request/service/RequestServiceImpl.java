@@ -33,7 +33,7 @@ public class RequestServiceImpl implements RequestService {
     public ItemRequestListInfoDto addRequest(Long requester, ItemRequestDto itemRequestDto) {
         ItemRequest request = modelMapper.map(itemRequestDto, ItemRequest.class);
         request.setRequester(validateUser(requester));
-        request.setCreated(LocalDateTime.now());
+        request.setCreated(LocalDateTime.now().withNano(0));
 
         return modelMapper
                 .map(requestRepository.save(request), ItemRequestListInfoDto.class);

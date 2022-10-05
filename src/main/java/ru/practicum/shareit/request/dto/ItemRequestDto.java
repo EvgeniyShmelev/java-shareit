@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * Класс отображения для запроса вещи
  */
 @Data
-@Builder
+
 public class ItemRequestDto {
     private Long id;            //уникальный идентификатор запроса;
 
