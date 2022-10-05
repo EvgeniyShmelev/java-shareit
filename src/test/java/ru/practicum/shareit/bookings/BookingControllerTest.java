@@ -16,8 +16,6 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,10 +47,8 @@ public class BookingControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        User owner = new User(1L, "owner", "owner@gmail.com");
-        User booker = new User(2L, "booker", "booker@gmail.com");
-        Item item = new Item(1L, "item", "description", true, owner, null);
-        Booking booking = new Booking(1L, start, end, item, booker, BookingStatus.WAITING);
+
+        Booking booking = new Booking(1L, start, end, null, null, BookingStatus.WAITING);
         bookingDto = modelMapper.map(booking, BookingDto.class);
         bookingAddDto = modelMapper.map(booking, BookingAddDto.class);
     }
