@@ -17,6 +17,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.comment.CommentRepository;
 import ru.practicum.shareit.item.repository.item.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -43,6 +45,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final ModelMapper modelMapper;
+    private final RequestRepository requestRepository;
 
     public Item getItemById(long userId, long itemId) {
         return itemRepository.findById(itemId)
@@ -92,18 +95,24 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Transactional
-    public ItemDto add(Long userId, ItemDto itemDto) {
+    public ItemUserDto add(Long userId, ItemDto itemDto) {
         checkUser(userId);
         User user = UserMapper.toUser(userService.get(userId));
         Item item = ItemMapper.toItem(itemDto);
         item.setId(numberGenerator.getId());
         item.setOwner(user);
+
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = requestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("такого запроса нет в списке"));
+            item.setRequest(itemRequest);
+        }
         itemRepository.save(item);
-        return ItemMapper.toItemDto(item);
+        return ItemMapper.toItemUserDto(item);
     }
 
     @Transactional
-    public ItemDto update(long userId, long itemId, ItemDto itemDto) {
+    public ItemUserDto update(long userId, long itemId, ItemDto itemDto) {
         checkUser(userId);
         Item item = itemRepository.findByIdAndOwner_Id(itemId, userId)
                 .orElseThrow(() -> new NotFoundException("неверный идентификатор пользователя"));
@@ -114,7 +123,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null)
             item.setAvailable(itemDto.getAvailable());
         itemRepository.save(item);
-        return ItemMapper.toItemDto(item);
+        return ItemMapper.toItemUserDto(item);
     }
 
     @Transactional
