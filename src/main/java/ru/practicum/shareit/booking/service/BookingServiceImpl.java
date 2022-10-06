@@ -2,7 +2,9 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingAddDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -85,7 +87,7 @@ public class BookingServiceImpl implements BookingService {
         bookings = new ArrayList<>();
         LocalDateTime dateTime = LocalDateTime.now();
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        Pageable pageable = PageRequest.of(from, size, sort);
+        Pageable pageable = PageRequest.of(from / size, size, sort);
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findByBooker_Id(userId, pageable);

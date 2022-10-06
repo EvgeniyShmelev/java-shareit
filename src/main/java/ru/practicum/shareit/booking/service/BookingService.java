@@ -4,7 +4,6 @@ import ru.practicum.shareit.booking.dto.BookingAddDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.BookingState;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface BookingService {
