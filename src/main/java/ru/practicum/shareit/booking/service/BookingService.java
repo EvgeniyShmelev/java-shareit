@@ -5,6 +5,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.BookingState;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface BookingService {
 
@@ -16,10 +17,10 @@ public interface BookingService {
     BookingDto getById(Long  userId, Long  bookingId);
 
     //Получение списка всех бронирований текущего пользователя.
-    Collection<BookingDto> getBookingsByUser(Long  userId, BookingState state, int from, int size);
+    List<BookingDto> getBookingsByUser(Long  userId, BookingState state, int from, int size);
 
     //Получение списка бронирований для всех вещей текущего пользователя
-    Collection<BookingDto> getBookingByOwner(Long  userId, BookingState state, int from, int size);
+    List<BookingDto> getBookingByOwner(Long  userId, BookingState state, int from, int size);
 
     void deleteBooking(Long  userId, Long  bookingId);
 
