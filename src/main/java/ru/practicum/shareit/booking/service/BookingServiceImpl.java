@@ -116,9 +116,6 @@ public class BookingServiceImpl implements BookingService {
                 break;
         }
         List<BookingDto> bookingDtoList = bookings.stream()
-                //как сделать пагинацию не меняя Collection на List???
-                /*PageImpl(List<T> content, Pageable pageable, long total)
-                Constructor of PageImpl.*/
                 .map(booking -> modelMapper.map(booking, BookingDto.class))
                 .collect(Collectors.toList());
 
