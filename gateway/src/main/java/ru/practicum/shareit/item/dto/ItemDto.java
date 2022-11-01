@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
 import ru.practicum.shareit.Create;
-import ru.practicum.shareit.booking.dto.BookItemRequestDto;
+import ru.practicum.shareit.booking.dto.BookingDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,8 +19,8 @@ public class ItemDto {
     @NotNull(groups = Create.class)
     private Boolean available;
     private Long requestId; //в этом поле будет храниться ссылка на соответствующий запрос
-    private BookItemRequestDto lastBooking;
-    private BookItemRequestDto nextBooking;
+    private BookingDto lastBooking;
+    private BookingDto nextBooking;
     private Collection<CommentDto> comments;
 }
 
