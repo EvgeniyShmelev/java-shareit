@@ -31,7 +31,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> createComment(@Validated({Update.class})
+    public ResponseEntity<Object> createComment(@Validated({Create.class})
                                                 @RequestBody CommentDto commentDto,
                                                 @PathVariable Long itemId,
                                                 @RequestHeader(USER_ID_HEADER) Long userId) {
