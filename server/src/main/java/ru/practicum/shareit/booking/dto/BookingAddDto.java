@@ -9,12 +9,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class BookingAddDto {
-        private Long id;
-        @Future(groups = Create.class)
-        @NotBlank(groups = LocalDateTime.class)
-        private LocalDateTime start;
-        @Future(groups = Create.class)
-        @NotBlank(groups = LocalDateTime.class)
-        private LocalDateTime end;
-        private Long itemId;
+    private Long id;
+    private LocalDateTime start;
+    private LocalDateTime end;
+    private Long itemId;
 }
