@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 //Нужен интеграционный тест, тк я не могу связать вещь с пользователем
+//Вроде бы тут я помечал для себя, что JUnit тест тут не прокатит :D
 public class ItemServiceImplTest {
     @Autowired
     private ItemService itemService;
